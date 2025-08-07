@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ربات گفتگوی روانشناسی</title>
+    <!-- Tailwind CSS برای استایل‌دهی مدرن و واکنش‌گرا -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /*
+          برای استفاده از فونت B Titr، باید فایل‌های فونت را در پروژه خود قرار دهید
+          و با استفاده از @font-face آن‌ها را فراخوانی کنید.
+          مثال:
+          @font-face {
+              font-family: 'B Titr';
+              src: url('path/to/B-Titr-webfont.eot');
+              src: url('path/to/B-Titr-webfont.eot?#iefix') format('embedded-opentype'),
+                   url('path/to/B-Titr-webfont.woff2') format('woff2'),
+                   url('path/to/B-Titr-webfont.woff') format('woff'),
+                   url('path/to/B-Titr-webfont.ttf') format('truetype');
+              font-weight: normal;
+              font-style: normal;
+          }
+        */
+        body {
+            font-family: 'B Titr', 'Vazirmatn', sans-serif;
+            direction: rtl;
+            text-align: right;
+        }
+        /* کلاس برای نمایش پاسخ‌های با فرمت Markdown */
+        .markdown-content {
+            white-space: pre-wrap;
+        }
+        /* انیمیشن لودینگ ساده */
+        .loading-dots span {
+            animation: bounce 1s infinite;
+        }
+        .loading-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .loading-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        @keyframes bounce {
+            0%, 80%, 100% {
+                transform: scale(0);
+            }
+            40% {
+                transform: scale(1.0);
+            }
+        }
+        /* رنگ طلایی سفارشی برای دکمه و عناصر */
+        .bg-gold-gradient {
+            background-image: linear-gradient(to right, #FFD700, #E6C300);
+        }
+        .text-gold {
+            color: #FFD700;
+        }
+        .border-gold {
+            border-color: #FFD700;
+        }
+        .ring-gold-focus:focus {
+            --tw-ring-color: #FFD700;
+        }
+        /* راست چین کردن placeholder در textarea */
+        textarea::placeholder {
+            text-align: right;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4 bg-gray-100 text-xs">
+    <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-2xl">
+        <!-- عنوان برنامه -->
+        <h1 class="text-3xl font-bold text-gray-800 text-right mb-6">ایجنت هوش مصنوعی روان‌شناسی</h1>
+        <p class="text-gray-600 text-right mb-8">
+            این ابزار برای پاسخ به سوالات شما در حوزه روان‌کاوی و روان‌شناسی طراحی شده است.
+        </p>
+
+        <!-- کادر ورودی برای متن کاربر -->
+        <div class="mb-4">
+            <textarea
+                id="promptInput"
+                class="w-full h-32 p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 ring-gold-focus transition-all resize-none"
+                placeholder="اینجا سوال یا متن خود را بنویسید..."
+            ></textarea>
+        </div>
+
+        <!-- دکمه ارسال و نمایش لودینگ -->
+        <button
+            id="sendButton"
+            class="w-full bg-gold-gradient text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+        >
+            ارسال
+        </button>
+
+        <!-- نمایش لودینگ -->
+        <div id="loadingIndicator" class="text-center mt-6 hidden">
+            <div class="loading-dots text-2xl text-gold">
+                <span>•</span><span>•</span><span>•</span>
+            </div>
+            <p class="text-gray-500 mt-2">در حال دریافت پاسخ...</p>
+        </div>
+
+        <!-- کادر نمایش پاسخ از Gemini -->
+        <div id="responseOutput" class="bg-gray-100 p-6 mt-8 rounded-xl border border-gray-200">
+            <p class="text-gray-500 text-right">پاسخ‌ها در اینجا نمایش داده می‌شوند.</p>
+        </div>
+
+        <!-- لینک‌های شبکه‌های اجتماعی -->
+        <div class="flex flex-col sm:flex-row justify-center items-center gap-4 mt-8 pt-4 border-t border-gray-200">
+            <!-- دکمه لینک تلگرام -->
+            <a href="https://t.me/psychoanalysis_Articles" target="_blank"
+                class="bg-blue-500 text-white font-bold py-2 px-6 rounded-xl shadow hover:bg-blue-600 transition-colors duration-300 w-full sm:w-auto text-center">
+                مقالات روانشناسی از اولین تا بروزترین
+            </a>
+            <!-- دکمه لینک یوتیوب -->
+            <a href="https://www.youtube.com/channel/UC6M1_SuIOnA5yaKpHHpTFBg" target="_blank"
+                class="bg-red-600 text-white font-bold py-2 px-6 rounded-xl shadow hover:bg-red-700 transition-colors duration-300 w-full sm:w-auto text-center">
+                YouTube
+            </a>
+            <!-- دکمه لینک اینستاگرام -->
+            <a href="https://www.instagram.com/amirreza.psychologist/" target="_blank"
+                class="bg-pink-600 text-white font-bold py-2 px-6 rounded-xl shadow hover:bg-pink-700 transition-colors duration-300 w-full sm:w-auto text-center">
+                Instagram
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // تعریف متغیرهای لازم برای تعامل با API
+        const sendButton = document.getElementById('sendButton');
+        const promptInput = document.getElementById('promptInput');
+        const responseOutput = document.getElementById('responseOutput');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+
+        // تابع اصلی برای برقراری ارتباط با API Gemini
+        async function getGeminiResponse(prompt) {
+            // نمایش لودینگ و غیرفعال کردن دکمه
+            loadingIndicator.classList.remove('hidden');
+            sendButton.disabled = true;
+            responseOutput.innerHTML = '';
+
+            // آماده‌سازی بدنه درخواست برای API
+            const chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
+            const payload = { contents: chatHistory };
+            const apiKey = ""; // کلید API شما به صورت خودکار در این محیط جایگزین می‌شود
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+            // تلاش برای ارسال درخواست با مکانیزم exponential backoff
+            const maxRetries = 5;
+            let retryCount = 0;
+            let response;
+            let result;
+
+            while (retryCount < maxRetries) {
+                try {
+                    response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.status === 429) {
+                        const delay = Math.pow(2, retryCount) * 1000; // تاخیر تصاعدی (1s, 2s, 4s, ...)
+                        console.log(`Too many requests. Retrying in ${delay}ms...`);
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        retryCount++;
+                        continue;
+                    }
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    result = await response.json();
+                    break; // در صورت موفقیت، از حلقه خارج می‌شویم
+
+                } catch (error) {
+                    console.error('Fetch error:', error);
+                    // در صورت بروز خطای دیگر، از حلقه خارج می‌شویم
+                    break;
+                }
+            }
+
+            // پنهان کردن لودینگ و فعال‌سازی مجدد دکمه
+            loadingIndicator.classList.add('hidden');
+            sendButton.disabled = false;
+
+            // استخراج و نمایش پاسخ
+            if (result && result.candidates && result.candidates.length > 0 && result.candidates[0].content) {
+                const text = result.candidates[0].content.parts[0].text;
+                responseOutput.innerHTML = `<p class="text-gray-800 markdown-content">${text}</p>`;
+            } else {
+                responseOutput.innerHTML = `<p class="text-red-500">خطا در دریافت پاسخ یا ساختار نامناسب پاسخ از API.</p>`;
+            }
+        }
+
+        // افزودن شنونده رویداد به دکمه
+        sendButton.addEventListener('click', () => {
+            const prompt = promptInput.value.trim();
+            if (prompt) {
+                getGeminiResponse(prompt);
+            }
+        });
+    </script>
+</body>
+</html>
