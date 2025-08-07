@@ -3,16 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ربات گفتگوی روانشناسی</title>
-    <!-- Tailwind CSS برای استایل‌دهی مدرن و واکنش‌گرا -->
+    <title>هوش مصنوعی روانشناس</title>
+    <!-- Tailwind CSS for modern and responsive styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /*
           برای استفاده از فونت B Titr، باید فایل‌های فونت را در پروژه خود قرار دهید
           و با استفاده از @font-face آن‌ها را فراخوانی کنید.
-          مثال:
-          @font-face {
-              font-family: 'B Titr';
+          Example:
+          @font-family: 'B Titr';
               src: url('path/to/B-Titr-webfont.eot');
               src: url('path/to/B-Titr-webfont.eot?#iefix') format('embedded-opentype'),
                    url('path/to/B-Titr-webfont.woff2') format('woff2'),
@@ -27,11 +26,11 @@
             direction: rtl;
             text-align: right;
         }
-        /* کلاس برای نمایش پاسخ‌های با فرمت Markdown */
+        /* Class for displaying Markdown responses */
         .markdown-content {
             white-space: pre-wrap;
         }
-        /* انیمیشن لودینگ ساده */
+        /* Simple loading animation */
         .loading-dots span {
             animation: bounce 1s infinite;
         }
@@ -49,7 +48,7 @@
                 transform: scale(1.0);
             }
         }
-        /* رنگ طلایی سفارشی برای دکمه و عناصر */
+        /* Custom gold color for buttons and elements */
         .bg-gold-gradient {
             background-image: linear-gradient(to right, #FFD700, #E6C300);
         }
@@ -62,18 +61,32 @@
         .ring-gold-focus:focus {
             --tw-ring-color: #FFD700;
         }
-        /* راست چین کردن placeholder در textarea */
+        /* Right-aligning placeholder in the textarea */
         textarea::placeholder {
             text-align: right;
         }
+        /* Yellow circular halo in the top-left corner */
+        .bg-yellow-gradient {
+            position: absolute;
+            top: -200px;
+            left: -200px;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.4) 0%, rgba(255, 255, 255, 0) 70%);
+            z-index: 0;
+            opacity: 0.7;
+            pointer-events: none;
+        }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4 bg-gray-100 text-xs">
-    <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-2xl">
-        <!-- عنوان برنامه -->
-        <h1 class="text-3xl font-bold text-gray-800 text-right mb-6">ایجنت هوش مصنوعی روان‌شناسی</h1>
+<body class="flex items-center justify-center min-h-screen p-4 bg-gray-50 text-xs relative overflow-hidden">
+    <!-- The yellow halo background element -->
+    <div class="bg-yellow-gradient"></div>
+    <div class="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-2xl z-10">
+        <!-- عنوان اصلی و توضیحات -->
+        <h1 class="text-3xl font-bold text-gray-800 text-right mb-4">هوش مصنوعی روانشناس</h1>
         <p class="text-gray-600 text-right mb-8">
-            این ابزار برای پاسخ به سوالات شما در حوزه روان‌کاوی و روان‌شناسی طراحی شده است.
+            این ابزار برای پاسخ به سوالات شما در حوزه روان‌شناسی کودک، نوجوان و بزرگسال و روانکاوی طراحی شده است.
         </p>
 
         <!-- کادر ورودی برای متن کاربر -->
@@ -81,7 +94,7 @@
             <textarea
                 id="promptInput"
                 class="w-full h-32 p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 ring-gold-focus transition-all resize-none"
-                placeholder="اینجا سوال یا متن خود را بنویسید..."
+                placeholder="سوال خود را اینجا مطرح کنید..."
             ></textarea>
         </div>
 
@@ -106,6 +119,17 @@
             <p class="text-gray-500 text-right">پاسخ‌ها در اینجا نمایش داده می‌شوند.</p>
         </div>
 
+        <!-- بخش درباره من -->
+        <div class="mt-8 pt-4 border-t border-gray-200">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">با من بیشتر آشنا شوید</h2>
+            <p class="text-gray-600 text-right mb-4">
+                من امیررضا هستم، دانشجوی ارشد روان‌شناسی بالینی کودک و نوجوان. از طریق این ابزار و کانال‌های اجتماعی‌ام، تلاش می‌کنم دانش روان‌شناسی را به زبانی ساده و کاربردی به شما منتقل کنم.
+            </p>
+            <p class="text-gray-600 text-right">
+                شما می‌توانید برای محتوای بیشتر، مقالات و ارتباط با من، از طریق لینک‌های زیر اقدام کنید.
+            </p>
+        </div>
+        
         <!-- لینک‌های شبکه‌های اجتماعی -->
         <div class="flex flex-col sm:flex-row justify-center items-center gap-4 mt-8 pt-4 border-t border-gray-200">
             <!-- دکمه لینک تلگرام -->
@@ -127,26 +151,26 @@
     </div>
 
     <script>
-        // تعریف متغیرهای لازم برای تعامل با API
+        // Definition of variables needed to interact with the API
         const sendButton = document.getElementById('sendButton');
         const promptInput = document.getElementById('promptInput');
         const responseOutput = document.getElementById('responseOutput');
         const loadingIndicator = document.getElementById('loadingIndicator');
 
-        // تابع اصلی برای برقراری ارتباط با API Gemini
+        // Main function to communicate with the Gemini API
         async function getGeminiResponse(prompt) {
-            // نمایش لودینگ و غیرفعال کردن دکمه
+            // Show loading and disable the button
             loadingIndicator.classList.remove('hidden');
             sendButton.disabled = true;
             responseOutput.innerHTML = '';
 
-            // آماده‌سازی بدنه درخواست برای API
+            // Prepare the request body for the API
             const chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
             const payload = { contents: chatHistory };
-            const apiKey = "AIzaSyCww07C3mwLCvc2YPyYqx1Qy667HUYQFaI"; // کلید API شما به صورت خودکار در این محیط جایگزین می‌شود
+            const apiKey = "AIzaSyCww07C3mwLCvc2YPyYqx1Qy667HUYQFaI";
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
 
-            // تلاش برای ارسال درخواست با مکانیزم exponential backoff
+            // Attempt to send the request with an exponential backoff mechanism
             const maxRetries = 5;
             let retryCount = 0;
             let response;
@@ -161,7 +185,7 @@
                     });
 
                     if (response.status === 429) {
-                        const delay = Math.pow(2, retryCount) * 1000; // تاخیر تصاعدی (1s, 2s, 4s, ...)
+                        const delay = Math.pow(2, retryCount) * 1000; // Exponential delay (1s, 2s, 4s, ...)
                         console.log(`Too many requests. Retrying in ${delay}ms...`);
                         await new Promise(resolve => setTimeout(resolve, delay));
                         retryCount++;
@@ -173,29 +197,29 @@
                     }
                     
                     result = await response.json();
-                    break; // در صورت موفقیت، از حلقه خارج می‌شویم
+                    break; // On success, exit the loop
 
                 } catch (error) {
                     console.error('Fetch error:', error);
-                    // در صورت بروز خطای دیگر، از حلقه خارج می‌شویم
+                    // On other errors, exit the loop
                     break;
                 }
             }
 
-            // پنهان کردن لودینگ و فعال‌سازی مجدد دکمه
+            // Hide loading and re-enable the button
             loadingIndicator.classList.add('hidden');
             sendButton.disabled = false;
 
-            // استخراج و نمایش پاسخ
+            // Extract and display the response
             if (result && result.candidates && result.candidates.length > 0 && result.candidates[0].content) {
                 const text = result.candidates[0].content.parts[0].text;
                 responseOutput.innerHTML = `<p class="text-gray-800 markdown-content">${text}</p>`;
             } else {
-                responseOutput.innerHTML = `<p class="text-red-500">خطا در دریافت پاسخ یا ساختار نامناسب پاسخ از API.</p>`;
+                responseOutput.innerHTML = `<p class="text-red-500">Error receiving response or invalid API response structure.</p>`;
             }
         }
 
-        // افزودن شنونده رویداد به دکمه
+        // Add event listener to the button
         sendButton.addEventListener('click', () => {
             const prompt = promptInput.value.trim();
             if (prompt) {
